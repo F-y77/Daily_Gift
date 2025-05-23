@@ -1,7 +1,7 @@
 name = "每日礼物"
 description = "每天会发布一个礼物，礼物里有丰厚的奖励"
 author = "凌"
-version = "1.0.0"
+version = "1.1.0"
 
 forumthread = ""
 
