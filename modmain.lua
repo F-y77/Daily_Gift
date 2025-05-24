@@ -111,7 +111,7 @@ local GIFT_ITEMS = {
     {prefab = "panflute", count = {min = 1, max = 1}, weight = 2},
     {prefab = "onemanband", count = {min = 1, max = 1}, weight = 2},
     
-    -- 装饰物品
+    -- 其他
     {prefab = "flowerhat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "strawhat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "tophat", count = {min = 1, max = 1}, weight = 2},
@@ -122,14 +122,40 @@ local GIFT_ITEMS = {
     {prefab = "molehat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "bushhat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "rainhat", count = {min = 1, max = 1}, weight = 2},
+
+    {prefab = "malbatross_beak", count = {min = 1, max = 1}, weight = 1},
+    {prefab = "malbatross_feather", count = {min = 1, max = 3}, weight = 1},
+    {prefab = "moonrockidol", count = {min = 1, max = 2}, weight = 1},
+    {prefab = "shadowheart", count = {min = 1, max = 1}, weight = 1},
+    {prefab = "atrium_key", count = {min = 1, max = 1}, weight = 1},
+    {prefab = "atrium_gate_key", count = {min = 1, max = 1}, weight = 1},
+    {prefab = "minotaurhorn", count = {min = 1, max = 1}, weight = 1},
+    {prefab = "klaussackkey", count = {min = 1, max = 1}, weight = 1},
+    {prefab = "deer_antler", count = {min = 1, max = 1}, weight = 1},
+
+    {prefab = "moonglass", count = {min = 5, max = 15}, weight = 7},
+    {prefab = "moonglassaxe", count = {min = 1, max = 1}, weight = 3},
+    {prefab = "glasscutter", count = {min = 1, max = 1}, weight = 2},
+    {prefab = "barnacle", count = {min = 3, max = 8}, weight = 6},
+    {prefab = "kelp", count = {min = 5, max = 15}, weight = 7},
+    {prefab = "kelp_cooked", count = {min = 5, max = 15}, weight = 7},
+    {prefab = "bullkelp_root", count = {min = 1, max = 2}, weight = 2},
+    {prefab = "messagebottleempty", count = {min = 1, max = 3}, weight = 2},
+    {prefab = "oar", count = {min = 1, max = 1}, weight = 2},
+    {prefab = "oar_driftwood", count = {min = 1, max = 1}, weight = 2},
+    {prefab = "driftwood_log", count = {min = 3, max = 8}, weight = 6},
 }
 
 -- 礼物发放函数
 local function GiveGiftItems(player)
     if not player or not player:IsValid() then return end
     
-    -- 随机选择2-4种物品
-    local gift_count = math.random(2, 4)
+    -- 读取自定义最小/最大数量
+    local min_count = GetModConfigData("GIFT_MIN_COUNT") or 2
+    local max_count = GetModConfigData("GIFT_MAX_COUNT") or 4
+    if min_count > max_count then min_count, max_count = max_count, min_count end
+    local gift_count = math.random(min_count, max_count)
+    
     local given_items = {}
     
     for i = 1, gift_count do

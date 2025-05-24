@@ -1,7 +1,7 @@
 name = "每日礼物"
 description = "每天会发布一个礼物，礼物里有丰厚的奖励"
 author = "凌"
-version = "1.1.0"
+version = "1.2.0"
 
 forumthread = ""
 
@@ -41,5 +41,29 @@ configuration_options = {
             {description = "关闭", data = false},
         },
         default = true,
-    }
+    },
+    {
+        name = "GIFT_MIN_COUNT",
+        label = "每日礼物最少物品数",
+        options = {
+            {description = "1", data = 1},
+            {description = "2", data = 2},
+            {description = "3", data = 3},
+            {description = "4", data = 4},
+            {description = "5", data = 5},
+        },
+        default = 2,
+    },
+    {
+        name = "GIFT_MAX_COUNT",
+        label = "每日礼物最多物品数",
+        options = {
+            {description = "2", data = 2},
+            {description = "3", data = 3},
+            {description = "4", data = 4},
+            {description = "5", data = 5},
+            {description = "6", data = 6},
+        },
+        default = 4,
+    },
 }
