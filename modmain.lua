@@ -1,14 +1,6 @@
--- 全局变量
-local _G = GLOBAL
-local TUNING = _G.TUNING
-local TheNet = _G.TheNet
-local AllPlayers = _G.AllPlayers
-local SpawnPrefab = _G.SpawnPrefab
-local TheWorld = _G.TheWorld
+GLOBAL.setmetatable(env, {__index = function(t, k) return GLOBAL.rawget(GLOBAL, k) end})
 
--- 礼物配置
-local GIFT_ITEMS = {
-    -- 基础资源
+local BASIC_ITEMS = {
     {prefab = "goldnugget", count = {min = 5, max = 15}, weight = 10},
     {prefab = "flint", count = {min = 10, max = 25}, weight = 10},
     {prefab = "rocks", count = {min = 10, max = 25}, weight = 10},
@@ -22,8 +14,7 @@ local GIFT_ITEMS = {
     {prefab = "moonrocknugget", count = {min = 3, max = 8}, weight = 7},
     {prefab = "moonrock", count = {min = 2, max = 5}, weight = 7},
     {prefab = "moonrockcrater", count = {min = 2, max = 5}, weight = 7},
-    
-    -- 食物
+
     {prefab = "honey", count = {min = 5, max = 15}, weight = 8},
     {prefab = "berries", count = {min = 10, max = 25}, weight = 8},
     {prefab = "carrot", count = {min = 10, max = 25}, weight = 8},
@@ -39,8 +30,10 @@ local GIFT_ITEMS = {
     {prefab = "taffy", count = {min = 1, max = 3}, weight = 7},
     {prefab = "pumpkincookie", count = {min = 1, max = 3}, weight = 7},
     {prefab = "mandrakesoup", count = {min = 1, max = 2}, weight = 6},
-    
-    -- 工具
+}
+
+local GIFT_ITEMS = {
+    --not sure useful exactily.
     {prefab = "axe", count = {min = 1, max = 1}, weight = 5},
     {prefab = "pickaxe", count = {min = 1, max = 1}, weight = 5},
     {prefab = "shovel", count = {min = 1, max = 1}, weight = 5},
@@ -54,8 +47,6 @@ local GIFT_ITEMS = {
     {prefab = "golden_farm_hoe", count = {min = 1, max = 1}, weight = 3},
     {prefab = "golden_farm_hoe_placer", count = {min = 1, max = 1}, weight = 3},
     {prefab = "golden_farm_hoe_placer_placer", count = {min = 1, max = 1}, weight = 3},
-    
-    -- 装备
     {prefab = "armorwood", count = {min = 1, max = 1}, weight = 3},
     {prefab = "spear", count = {min = 1, max = 1}, weight = 3},
     {prefab = "backpack", count = {min = 1, max = 1}, weight = 3},
@@ -71,8 +62,6 @@ local GIFT_ITEMS = {
     {prefab = "trunkvest_winter", count = {min = 1, max = 1}, weight = 2},
     {prefab = "reflectivevest", count = {min = 1, max = 1}, weight = 2},
     {prefab = "hawaiianshirt", count = {min = 1, max = 1}, weight = 2},
-    
-    -- 稀有物品
     {prefab = "purplegem", count = {min = 1, max = 3}, weight = 1},
     {prefab = "redgem", count = {min = 1, max = 3}, weight = 1},
     {prefab = "bluegem", count = {min = 1, max = 3}, weight = 1},
@@ -83,12 +72,6 @@ local GIFT_ITEMS = {
     {prefab = "thulecite_pieces", count = {min = 2, max = 4}, weight = 1},
     {prefab = "nightmarefuel", count = {min = 2, max = 5}, weight = 1},
     {prefab = "livinglog", count = {min = 1, max = 3}, weight = 1},
-    {prefab = "moonrocknugget", count = {min = 3, max = 8}, weight = 1},
-    {prefab = "moonrock", count = {min = 2, max = 5}, weight = 1},
-    {prefab = "moonrockcrater", count = {min = 2, max = 5}, weight = 1},
-    
-    -- 特殊物品
-    {prefab = "tentaclespike", count = {min = 1, max = 1}, weight = 2},
     {prefab = "dragon_scales", count = {min = 1, max = 2}, weight = 1},
     {prefab = "deerclops_eyeball", count = {min = 1, max = 1}, weight = 1},
     {prefab = "bearger_fur", count = {min = 1, max = 1}, weight = 1},
@@ -98,8 +81,6 @@ local GIFT_ITEMS = {
     {prefab = "beardhair", count = {min = 3, max = 6}, weight = 2},
     {prefab = "beefalowool", count = {min = 3, max = 6}, weight = 2},
     {prefab = "honeycomb", count = {min = 1, max = 2}, weight = 1},
-    
-    -- 魔法物品
     {prefab = "firestaff", count = {min = 1, max = 1}, weight = 2},
     {prefab = "icestaff", count = {min = 1, max = 1}, weight = 2},
     {prefab = "telestaff", count = {min = 1, max = 1}, weight = 2},
@@ -110,8 +91,6 @@ local GIFT_ITEMS = {
     {prefab = "diviningrod", count = {min = 1, max = 1}, weight = 2},
     {prefab = "panflute", count = {min = 1, max = 1}, weight = 2},
     {prefab = "onemanband", count = {min = 1, max = 1}, weight = 2},
-    
-    -- 其他
     {prefab = "flowerhat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "strawhat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "tophat", count = {min = 1, max = 1}, weight = 2},
@@ -122,46 +101,24 @@ local GIFT_ITEMS = {
     {prefab = "molehat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "bushhat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "rainhat", count = {min = 1, max = 1}, weight = 2},
-
-    {prefab = "malbatross_beak", count = {min = 1, max = 1}, weight = 1},
-    {prefab = "malbatross_feather", count = {min = 1, max = 3}, weight = 1},
-    {prefab = "moonrockidol", count = {min = 1, max = 2}, weight = 1},
-    {prefab = "shadowheart", count = {min = 1, max = 1}, weight = 1},
-    {prefab = "atrium_key", count = {min = 1, max = 1}, weight = 1},
-    {prefab = "atrium_gate_key", count = {min = 1, max = 1}, weight = 1},
-    {prefab = "minotaurhorn", count = {min = 1, max = 1}, weight = 1},
-    {prefab = "klaussackkey", count = {min = 1, max = 1}, weight = 1},
-    {prefab = "deer_antler", count = {min = 1, max = 1}, weight = 1},
-
-    {prefab = "moonglass", count = {min = 5, max = 15}, weight = 7},
-    {prefab = "moonglassaxe", count = {min = 1, max = 1}, weight = 3},
-    {prefab = "glasscutter", count = {min = 1, max = 1}, weight = 2},
-    {prefab = "barnacle", count = {min = 3, max = 8}, weight = 6},
-    {prefab = "kelp", count = {min = 5, max = 15}, weight = 7},
-    {prefab = "kelp_cooked", count = {min = 5, max = 15}, weight = 7},
-    {prefab = "bullkelp_root", count = {min = 1, max = 2}, weight = 2},
-    {prefab = "messagebottleempty", count = {min = 1, max = 3}, weight = 2},
-    {prefab = "oar", count = {min = 1, max = 1}, weight = 2},
-    {prefab = "oar_driftwood", count = {min = 1, max = 1}, weight = 2},
-    {prefab = "driftwood_log", count = {min = 3, max = 8}, weight = 6},
 }
-
--- 礼物发放函数
 local function GiveGiftItems(player)
     if not player or not player:IsValid() then return end
     
-    -- 读取自定义最小/最大数量
+    -- number is radommmmmmm
     local min_count = GetModConfigData("GIFT_MIN_COUNT") or 2
     local max_count = GetModConfigData("GIFT_MAX_COUNT") or 4
     if min_count > max_count then min_count, max_count = max_count, min_count end
     local gift_count = math.random(min_count, max_count)
     
     local given_items = {}
+
+    local item_list = GetModConfigData("BASIC_ITEMS_ONLY") and BASIC_ITEMS or GIFT_ITEMS
     
     for i = 1, gift_count do
-        -- 根据权重随机选择物品
+        -- choice what?
         local total_weight = 0
-        for _, item in ipairs(GIFT_ITEMS) do
+        for _, item in ipairs(item_list) do
             total_weight = total_weight + item.weight
         end
         
@@ -169,7 +126,7 @@ local function GiveGiftItems(player)
         local current_weight = 0
         local selected_item = nil
         
-        for _, item in ipairs(GIFT_ITEMS) do
+        for _, item in ipairs(item_list) do
             current_weight = current_weight + item.weight
             if random_weight <= current_weight then
                 selected_item = item
@@ -178,17 +135,17 @@ local function GiveGiftItems(player)
         end
         
         if selected_item then
-            -- 生成物品
+            -- god to create 
             local count = math.random(selected_item.count.min, selected_item.count.max)
             local item = SpawnPrefab(selected_item.prefab)
             
             if item then
-                -- 如果是可堆叠物品，设置数量
+                -- set stack
                 if item.components.stackable then
                     item.components.stackable:SetStackSize(count)
                 end
                 
-                -- 尝试放入玩家背包
+                -- put bag
                 if player.components.inventory then
                     if player.components.inventory:GiveItem(item) then
                         table.insert(given_items, {
@@ -196,7 +153,7 @@ local function GiveGiftItems(player)
                             count = count
                         })
                     else
-                        -- 如果背包满了，放在玩家脚下
+                        -- put down
                         local x, y, z = player.Transform:GetWorldPosition()
                         item.Transform:SetPosition(x, y, z)
                         table.insert(given_items, {
@@ -209,7 +166,7 @@ local function GiveGiftItems(player)
         end
     end
     
-    -- 通知玩家获得的物品
+    -- notice
     if #given_items > 0 then
         local message = "你获得了以下礼物："
         for _, item in ipairs(given_items) do
@@ -226,21 +183,21 @@ local function GiveGiftItems(player)
     end
 end
 
--- 初始化模组
+--fuck cave listening
 AddPrefabPostInit("world", function(inst)
-    if not _G.TheWorld.ismastersim then return end
+    if not TheWorld.ismastersim then return end
     
-    -- 记录上次发放礼物的天数
+
     local last_gift_day = 0
     
-    -- 监听世界状态变化
+
     inst:WatchWorldState("phase", function()
-        local current_phase = _G.TheWorld.state.phase
-        local current_day = _G.TheWorld.state.cycles
+        local current_phase = TheWorld.state.phase
+        local current_day = TheWorld.state.cycles
         
-        -- 检查是否到达指定时间且是新的一天
+
         if current_phase == GetModConfigData("GIFT_TIME") and current_day > last_gift_day then
-            -- 获取所有在线玩家
+
             local players = {}
             for _, v in ipairs(AllPlayers) do
                 if v:IsValid() then
@@ -248,16 +205,14 @@ AddPrefabPostInit("world", function(inst)
                 end
             end
             
-            -- 给所有在线玩家发放礼物
+
             for _, player in ipairs(players) do
                 GiveGiftItems(player)
             end
             
-            -- 更新上次发放礼物的天数
+
             last_gift_day = current_day
         end
     end)
 end)
 
--- 模组加载完成提示
-print("[每日礼物] 模组加载完成")
