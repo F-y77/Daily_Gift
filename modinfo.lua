@@ -1,7 +1,7 @@
 name = "每日礼物"
 description = "每天会发布一个礼物，礼物里有丰厚的奖励"
 author = "凌"
-version = "1.2.5"
+version = "1.2.6"
 forumthread = ""
 api_version = 10
 dont_starve_compatible = false
@@ -16,6 +16,15 @@ server_filter_tags = {
     "凌",
 }
 configuration_options = {
+    {
+        name = "LANGUAGE",
+        label = "语言选择",
+        options = {
+            {description = "中文", data = "CHINESE"},
+            {description = "English", data = "ENGLISH"},
+        },
+        default = "CHINESE",
+    },
     {
         name = "BASIC_ITEMS_ONLY",
         label = "纯净物资模式",
@@ -65,6 +74,10 @@ configuration_options = {
             {description = "4", data = 4},
             {description = "5", data = 5},
             {description = "6", data = 6},
+            {description = "7", data = 7},
+            {description = "8", data = 8},
+            {description = "9", data = 9},
+            {description = "10", data = 10},
         },
         default = 4,
     },

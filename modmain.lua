@@ -1,5 +1,24 @@
 GLOBAL.setmetatable(env, {__index = function(t, k) return GLOBAL.rawget(GLOBAL, k) end})
 
+-- Language strings
+local STRINGS = {
+    CHINESE = {
+        GIFT_MESSAGE = "你获得了以下礼物：",
+        PLAYER_GIFT = "玩家 %s 获得了每日礼物！",
+        UNKNOWN = "未知"
+    },
+    ENGLISH = {
+        GIFT_MESSAGE = "You received the following gifts:",
+        PLAYER_GIFT = "Player %s received daily gifts!",
+        UNKNOWN = "Unknown"
+    }
+}
+
+local function GetLanguageStrings()
+    local language = GetModConfigData("LANGUAGE") or "CHINESE"
+    return STRINGS[language] or STRINGS.CHINESE
+end
+
 local BASIC_ITEMS = {
     {prefab = "goldnugget", count = {min = 5, max = 15}, weight = 10},
     {prefab = "flint", count = {min = 10, max = 25}, weight = 10},
@@ -8,7 +27,6 @@ local BASIC_ITEMS = {
     {prefab = "twigs", count = {min = 10, max = 25}, weight = 10},
     {prefab = "cutgrass", count = {min = 10, max = 25}, weight = 10},
     {prefab = "charcoal", count = {min = 10, max = 20}, weight = 8},
-    {prefab = "ash", count = {min = 10, max = 20}, weight = 8},
     {prefab = "nitre", count = {min = 5, max = 10}, weight = 8},
     {prefab = "saltrock", count = {min = 5, max = 10}, weight = 8},
     {prefab = "moonrocknugget", count = {min = 3, max = 8}, weight = 7},
@@ -33,12 +51,41 @@ local BASIC_ITEMS = {
 }
 
 local GIFT_ITEMS = {
+
+    {prefab = "goldnugget", count = {min = 5, max = 15}, weight = 10},
+    {prefab = "flint", count = {min = 10, max = 25}, weight = 10},
+    {prefab = "rocks", count = {min = 10, max = 25}, weight = 10},
+    {prefab = "log", count = {min = 10, max = 25}, weight = 10},
+    {prefab = "twigs", count = {min = 10, max = 25}, weight = 10},
+    {prefab = "cutgrass", count = {min = 10, max = 25}, weight = 10},
+    {prefab = "charcoal", count = {min = 10, max = 20}, weight = 8},
+    {prefab = "nitre", count = {min = 5, max = 10}, weight = 8},
+    {prefab = "saltrock", count = {min = 5, max = 10}, weight = 8},
+    {prefab = "moonrocknugget", count = {min = 3, max = 8}, weight = 7},
+    {prefab = "moonrock", count = {min = 2, max = 5}, weight = 7},
+    {prefab = "moonrockcrater", count = {min = 2, max = 5}, weight = 7},
+
+    {prefab = "honey", count = {min = 5, max = 15}, weight = 8},
+    {prefab = "berries", count = {min = 10, max = 25}, weight = 8},
+    {prefab = "carrot", count = {min = 10, max = 25}, weight = 8},
+    {prefab = "seeds", count = {min = 10, max = 25}, weight = 8},
+    {prefab = "meat", count = {min = 5, max = 15}, weight = 8},
+    {prefab = "fish", count = {min = 5, max = 15}, weight = 8},
+    {prefab = "drumstick", count = {min = 5, max = 10}, weight = 8},
+    {prefab = "froglegs", count = {min = 5, max = 10}, weight = 8},
+    {prefab = "monstermeat", count = {min = 3, max = 8}, weight = 6},
+    {prefab = "cookedmonstermeat", count = {min = 3, max = 8}, weight = 6},
+    {prefab = "butterflymuffin", count = {min = 1, max = 3}, weight = 7},
+    {prefab = "frogglebunwich", count = {min = 1, max = 3}, weight = 7},
+    {prefab = "taffy", count = {min = 1, max = 3}, weight = 7},
+    {prefab = "pumpkincookie", count = {min = 1, max = 3}, weight = 7},
+    {prefab = "mandrakesoup", count = {min = 1, max = 2}, weight = 6},
+    
     --not sure useful exactily.
     {prefab = "axe", count = {min = 1, max = 1}, weight = 5},
     {prefab = "pickaxe", count = {min = 1, max = 1}, weight = 5},
     {prefab = "shovel", count = {min = 1, max = 1}, weight = 5},
     {prefab = "hammer", count = {min = 1, max = 1}, weight = 5},
-    {prefab = "razor", count = {min = 1, max = 1}, weight = 5},
     {prefab = "bugnet", count = {min = 1, max = 1}, weight = 4},
     {prefab = "fishingrod", count = {min = 1, max = 1}, weight = 4},
     {prefab = "goldenaxe", count = {min = 1, max = 1}, weight = 3},
@@ -88,7 +135,6 @@ local GIFT_ITEMS = {
     {prefab = "greenstaff", count = {min = 1, max = 1}, weight = 2},
     {prefab = "yellowstaff", count = {min = 1, max = 1}, weight = 2},
     {prefab = "opalstaff", count = {min = 1, max = 1}, weight = 2},
-    {prefab = "diviningrod", count = {min = 1, max = 1}, weight = 2},
     {prefab = "panflute", count = {min = 1, max = 1}, weight = 2},
     {prefab = "onemanband", count = {min = 1, max = 1}, weight = 2},
     {prefab = "flowerhat", count = {min = 1, max = 1}, weight = 2},
@@ -102,6 +148,18 @@ local GIFT_ITEMS = {
     {prefab = "bushhat", count = {min = 1, max = 1}, weight = 2},
     {prefab = "rainhat", count = {min = 1, max = 1}, weight = 2},
 }
+
+-- 获取所有可用的物品预制体
+local function GetAllPrefabs()
+    local prefabs = {}
+    for prefab, _ in pairs(Prefabs) do
+        if prefab ~= "world" and prefab ~= "forest" and prefab ~= "cave" then
+            table.insert(prefabs, prefab)
+        end
+    end
+    return prefabs
+end
+
 local function GiveGiftItems(player)
     if not player or not player:IsValid() then return end
     
@@ -113,7 +171,24 @@ local function GiveGiftItems(player)
     
     local given_items = {}
 
-    local item_list = GetModConfigData("BASIC_ITEMS_ONLY") and BASIC_ITEMS or GIFT_ITEMS
+    local mode = GetModConfigData("BASIC_ITEMS_ONLY") or "BASIC"
+    local item_list = nil
+    
+    if mode == "BASIC" then
+        item_list = BASIC_ITEMS
+    elseif mode == "ALL" then
+        item_list = GIFT_ITEMS
+    else -- RANDOM mode
+        local all_prefabs = GetAllPrefabs()
+        item_list = {}
+        for _, prefab in ipairs(all_prefabs) do
+            table.insert(item_list, {
+                prefab = prefab,
+                count = {min = 1, max = 3},
+                weight = 1
+            })
+        end
+    end
     
     for i = 1, gift_count do
         -- choice what?
@@ -168,7 +243,8 @@ local function GiveGiftItems(player)
     
     -- notice
     if #given_items > 0 then
-        local message = "你获得了以下礼物："
+        local strings = GetLanguageStrings()
+        local message = strings.GIFT_MESSAGE
         for _, item in ipairs(given_items) do
             message = message .. "\n" .. item.name .. " x" .. item.count
         end
@@ -178,7 +254,7 @@ local function GiveGiftItems(player)
         end
         
         if TheNet:GetIsServer() and GetModConfigData("GIFT_ANNOUNCEMENT") then
-            TheNet:SystemMessage(string.format("玩家 %s 获得了每日礼物！", player.name or "未知"))
+            TheNet:SystemMessage(string.format(strings.PLAYER_GIFT, player.name or strings.UNKNOWN))
         end
     end
 end
