@@ -1,7 +1,7 @@
 name = "每日礼物"
 description = "每天会发布一个礼物，礼物里有丰厚的奖励"
 author = "凌"
-version = "1.2.6"
+version = "1.2.7"
 forumthread = ""
 api_version = 10
 dont_starve_compatible = false
@@ -28,6 +28,15 @@ configuration_options = {
     {
         name = "BASIC_ITEMS_ONLY",
         label = "纯净物资模式",
+        options = {
+            {description = "开启", data = true},
+            {description = "关闭", data = false},
+        },
+        default = true,
+    },
+    {
+        name = "RARITY_SYSTEM",
+        label = "（纯净模式）稀有度系统",
         options = {
             {description = "开启", data = true},
             {description = "关闭", data = false},
@@ -80,5 +89,18 @@ configuration_options = {
             {description = "10", data = 10},
         },
         default = 4,
+    },
+    {
+        name = "EPIC_GIFT_CHANCE",
+        label = "史诗礼物概率",
+        options = {
+            {description = "5%", data = 0.05},
+            {description = "10%", data = 0.1},
+            {description = "15%", data = 0.15},
+            {description = "20%", data = 0.2},
+            {description = "25%", data = 0.25},
+            {description = "30%", data = 0.3},
+        },
+        default = 0.1,
     },
 }

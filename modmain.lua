@@ -5,12 +5,18 @@ local STRINGS = {
     CHINESE = {
         GIFT_MESSAGE = "你获得了以下礼物：",
         PLAYER_GIFT = "玩家 %s 获得了每日礼物！",
-        UNKNOWN = "未知"
+        UNKNOWN = "未知",
+        EPIC_GIFT = "【史诗】你获得了以下礼物：",
+        EPIC_BUFF = "【史诗】你获得了以下增益：",
+        EPIC_PLAYER_GIFT = "【史诗】玩家 %s 获得了每日礼物！"
     },
     ENGLISH = {
         GIFT_MESSAGE = "You received the following gifts:",
         PLAYER_GIFT = "Player %s received daily gifts!",
-        UNKNOWN = "Unknown"
+        UNKNOWN = "Unknown",
+        EPIC_GIFT = "[EPIC] You received the following gifts:",
+        EPIC_BUFF = "[EPIC] You received the following buffs:",
+        EPIC_PLAYER_GIFT = "[EPIC] Player %s received daily gifts!"
     }
 }
 
@@ -149,19 +155,105 @@ local GIFT_ITEMS = {
     {prefab = "rainhat", count = {min = 1, max = 1}, weight = 2},
 }
 
--- 获取所有可用的物品预制体
-local function GetAllPrefabs()
-    local prefabs = {}
-    for prefab, _ in pairs(Prefabs) do
-        if prefab ~= "world" and prefab ~= "forest" and prefab ~= "cave" then
-            table.insert(prefabs, prefab)
+-- 史诗物品列表
+local EPIC_ITEMS = {
+    {prefab = "thulecite", count = {min = 5, max = 10}, weight = 1},
+    {prefab = "thulecite_pieces", count = {min = 10, max = 20}, weight = 1},
+    {prefab = "nightmarefuel", count = {min = 10, max = 20}, weight = 1},
+    {prefab = "livinglog", count = {min = 5, max = 10}, weight = 1},
+    {prefab = "dragon_scales", count = {min = 3, max = 5}, weight = 1},
+    {prefab = "deerclops_eyeball", count = {min = 2, max = 3}, weight = 1},
+    {prefab = "bearger_fur", count = {min = 2, max = 3}, weight = 1},
+    {prefab = "glommerfuel", count = {min = 3, max = 5}, weight = 1},
+    {prefab = "purplegem", count = {min = 5, max = 10}, weight = 1},
+    {prefab = "redgem", count = {min = 5, max = 10}, weight = 1},
+    {prefab = "bluegem", count = {min = 5, max = 10}, weight = 1},
+    {prefab = "orangegem", count = {min = 5, max = 10}, weight = 1},
+    {prefab = "yellowgem", count = {min = 5, max = 10}, weight = 1},
+    {prefab = "greengem", count = {min = 5, max = 10}, weight = 1},
+}
+
+-- 史诗增益效果
+local EPIC_BUFFS = {
+    {
+        name = "速度提升",
+        duration = 480, -- 8分钟
+        fn = function(player)
+            if player.components.locomotor then
+                player.components.locomotor:SetExternalSpeedMultiplier(player, "epic_buff", 1.5)
+            end
+        end,
+        cleanup = function(player)
+            if player.components.locomotor then
+                player.components.locomotor:RemoveExternalSpeedMultiplier(player, "epic_buff")
+            end
         end
-    end
-    return prefabs
+    },
+    {
+        name = "伤害提升",
+        duration = 480,
+        fn = function(player)
+            if player.components.combat then
+                player.components.combat.damagemultiplier = player.components.combat.damagemultiplier * 1.5
+            end
+        end,
+        cleanup = function(player)
+            if player.components.combat then
+                player.components.combat.damagemultiplier = player.components.combat.damagemultiplier / 1.5
+            end
+        end
+    },
+    {
+        name = "饥饿减缓",
+        duration = 480,
+        fn = function(player)
+            if player.components.hunger then
+                player.components.hunger:SetRate(player.components.hunger:GetRate() * 0.5)
+            end
+        end,
+        cleanup = function(player)
+            if player.components.hunger then
+                player.components.hunger:SetRate(player.components.hunger:GetRate() * 2)
+            end
+        end
+    },
+    {
+        name = "精神提升",
+        duration = 480,
+        fn = function(player)
+            if player.components.sanity then
+                player.components.sanity:SetRate(player.components.sanity:GetRate() * 1.5)
+            end
+        end,
+        cleanup = function(player)
+            if player.components.sanity then
+                player.components.sanity:SetRate(player.components.sanity:GetRate() / 1.5)
+            end
+        end
+    }
+}
+
+local function ApplyEpicBuff(player)
+    if not player or not player:IsValid() then return end
+    
+    local buff = EPIC_BUFFS[math.random(#EPIC_BUFFS)]
+    buff.fn(player)
+    
+    player:DoTaskInTime(buff.duration, function()
+        if player:IsValid() then
+            buff.cleanup(player)
+        end
+    end)
+    
+    return buff.name
 end
+
 
 local function GiveGiftItems(player)
     if not player or not player:IsValid() then return end
+    
+    local strings = GetLanguageStrings()
+    local is_epic = GetModConfigData("RARITY_SYSTEM") and math.random() < GetModConfigData("EPIC_GIFT_CHANCE") 
     
     -- number is radommmmmmm
     local min_count = GetModConfigData("GIFT_MIN_COUNT") or 2
@@ -171,23 +263,9 @@ local function GiveGiftItems(player)
     
     local given_items = {}
 
-    local mode = GetModConfigData("BASIC_ITEMS_ONLY") or "BASIC"
-    local item_list = nil
-    
-    if mode == "BASIC" then
-        item_list = BASIC_ITEMS
-    elseif mode == "ALL" then
-        item_list = GIFT_ITEMS
-    else -- RANDOM mode
-        local all_prefabs = GetAllPrefabs()
-        item_list = {}
-        for _, prefab in ipairs(all_prefabs) do
-            table.insert(item_list, {
-                prefab = prefab,
-                count = {min = 1, max = 3},
-                weight = 1
-            })
-        end
+    local item_list = GetModConfigData("BASIC_ITEMS_ONLY") and BASIC_ITEMS or GIFT_ITEMS
+    if is_epic then
+        item_list = EPIC_ITEMS
     end
     
     for i = 1, gift_count do
@@ -243,10 +321,14 @@ local function GiveGiftItems(player)
     
     -- notice
     if #given_items > 0 then
-        local strings = GetLanguageStrings()
-        local message = strings.GIFT_MESSAGE
+        local message = is_epic and strings.EPIC_GIFT or strings.GIFT_MESSAGE
         for _, item in ipairs(given_items) do
             message = message .. "\n" .. item.name .. " x" .. item.count
+        end
+
+        if is_epic then
+            local buff_name = ApplyEpicBuff(player)
+            message = message .. "\n\n" .. strings.EPIC_BUFF .. "\n" .. buff_name
         end
         
         if player.components.talker then
@@ -254,7 +336,10 @@ local function GiveGiftItems(player)
         end
         
         if TheNet:GetIsServer() and GetModConfigData("GIFT_ANNOUNCEMENT") then
-            TheNet:SystemMessage(string.format(strings.PLAYER_GIFT, player.name or strings.UNKNOWN))
+            TheNet:SystemMessage(string.format(
+                is_epic and strings.EPIC_PLAYER_GIFT or strings.PLAYER_GIFT,
+                player.name or strings.UNKNOWN
+            ))
         end
     end
 end
